@@ -21,21 +21,21 @@ Append new implementation phases under dated headings, milestone sections, or mo
 - [x] Build basic bottom tab navigation UI for Home, Species, Create, Search, and Profile.
 - [x] Initialize NativeWind and map Stitch design tokens to `tailwind.config.js`.
 
-### Phase 3: Local Database (Realm) & State (Pending)
-- [ ] Define Realm Schemas (`User`, `SpeciesRecord`, `Observation`, `MediaAsset`, `DraftObservation`, etc.).
-- [ ] Initialize Realm provider in Expo.
-- [ ] Create basic Zustand stores (`useAuthStore`, `useThemeStore`).
+### Phase 3: Local Database (Realm) & State (Completed)
+- [x] Define Realm Schemas (`User`, `SpeciesRecord`, `Observation`, `MediaAsset`, `DraftObservation`, etc.).
+- [x] Initialize Realm provider in Expo.
+- [x] Create basic Zustand stores (`useAuthStore`, `useThemeStore`).
 
-### Phase 4: Authentication & Onboarding (Pending)
-- [ ] Welcome Screen
-- [ ] Category Selection
-- [ ] Local Login / Signup forms.
-- [ ] Connect Authentication to Realm `User` schema.
+### Phase 4: Authentication & Onboarding (Completed)
+- [x] Welcome Screen
+- [x] Category Selection
+- [x] Local Login / Signup forms.
+- [x] Connect Authentication to Realm `User` schema.
 
-### Phase 5: Observation Workflow (Pending)
-- [ ] Camera and Gallery Media Capture.
-- [ ] Draft auto-saving and recovery logic.
-- [ ] Observation Form Details (Notes, Name, Location).
+### Phase 5: Observation Workflow (Completed)
+- [x] Camera and Gallery Media Capture.
+- [x] Draft auto-saving and recovery logic.
+- [x] Observation Form Details (Notes, Name, Location).
 
 ### Phase 6: Species Grouping & Archive (Pending)
 - [ ] Species matching algorithm.

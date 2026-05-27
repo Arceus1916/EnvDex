@@ -27,3 +27,31 @@
 - Removed default template tabs from SDK 56.
 - Set up a standard file-based Expo Router structure using a root Stack and a nested `(tabs)` navigator.
 - Created 5 basic tab screens (Home, Species, Capture, Search, Profile) styled with NativeWind to verify configuration.
+
+### [2026-05-28] Phase 3: Local Database (Realm) & State
+**Feature**: Offline-First State & Schema Setup
+**Files Affected**: `src/database/schema.ts`, `src/stores/useAuthStore.ts`, `src/stores/useThemeStore.ts`, `src/app/_layout.tsx`
+**Summary**: 
+- Configured Zustand for local state management (Auth and Theme).
+- Implemented core Realm object schemas (`User`, `SpeciesRecord`, `Observation`, `MediaAsset`, `DraftObservation`) with offline-first support.
+- Initialized the `RealmProvider` at the root of the application for global database access.
+
+### [2026-05-28] Phase 4: Authentication & Onboarding
+**Feature**: Local Offline Authentication
+**Files Affected**: `src/services/AuthService.ts`, `src/app/index.tsx`, `src/app/(auth)/*`
+**Summary**: 
+- Created `AuthService` to handle `User` schema operations via Realm.
+- Generated offline Hash IDs to uniquely identify and restore local sessions.
+- Built a 3-step onboarding flow (`welcome`, `category`, `permissions`).
+- Built local `signup` and `login` forms utilizing the Zustand `useAuthStore` to manage session state.
+- Set up root navigation redirection (`src/app/index.tsx`) based on the authenticated state.
+
+### [2026-05-28] Phase 5: Observation Workflow
+**Feature**: Core Sighting & Data Capture Workflow
+**Files Affected**: `src/services/ObservationService.ts`, `src/app/observation/*`, `src/app/(tabs)/create.tsx`
+**Summary**: 
+- Created `ObservationService` to handle complex Realm operations: automatic species grouping, media linking, and draft management.
+- Implemented `create.tsx` tab as the quick-launch entry point for the camera or gallery.
+- Built `camera.tsx` using `expo-camera` and `expo-image-picker` with logic to auto-save initial media to a `DraftObservation`.
+- Developed `details.tsx` form for capturing species name, field notes, and GPS location via `expo-location`.
+- The workflow now robustly saves an `Observation` to Realm while optionally generating new `SpeciesRecord` entries.
