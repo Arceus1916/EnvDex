@@ -12,6 +12,7 @@ export class User extends Realm.Object<User> {
   syncId?: string;
   syncStatus?: string;
   lastSyncedAt?: Date;
+  profilePicUri?: string;
 
   static schema: Realm.ObjectSchema = {
     name: 'User',
@@ -28,6 +29,7 @@ export class User extends Realm.Object<User> {
       syncId: 'string?',
       syncStatus: 'string?',
       lastSyncedAt: 'date?',
+      profilePicUri: 'string?',
     },
   };
 }
@@ -85,6 +87,8 @@ export class Observation extends Realm.Object<Observation> {
   speciesId?: string;
   userId!: string;
   title?: string;
+  animalNickname?: string;
+  scientificName?: string;
   notes?: string;
   latitude?: number;
   longitude?: number;
@@ -110,6 +114,8 @@ export class Observation extends Realm.Object<Observation> {
       speciesId: 'string?',
       userId: 'string',
       title: 'string?',
+      animalNickname: 'string?',
+      scientificName: 'string?',
       notes: 'string?',
       latitude: 'double?',
       longitude: 'double?',

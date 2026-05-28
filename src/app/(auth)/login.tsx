@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useRealm } from '@realm/react';
 import { AuthService } from '../../services/AuthService';
 import { useAuthStore } from '../../stores/useAuthStore';
@@ -12,6 +13,7 @@ export default function LoginScreen() {
 
   const [hashId, setHashId] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = () => {
     if (!hashId || !password) {
@@ -35,51 +37,76 @@ export default function LoginScreen() {
   };
 
   return (
-    <View className="flex-1 bg-background p-safe-margin pt-12 justify-center">
-      <Text className="text-3xl font-sans font-bold text-primary mb-2 text-center">
-        Welcome Back
-      </Text>
-      <Text className="text-on-surface text-base mb-8 leading-6 text-center">
-        Enter your Hash ID to access your local archive.
-      </Text>
-
-      <View className="mb-4">
-        <Text className="text-on-surface-variant font-bold mb-2">Hash ID *</Text>
-        <TextInput
-          className="bg-surface-container p-4 rounded-xl text-on-surface"
-          placeholder="e.g. A1B2C3"
-          placeholderTextColor="#6d7a78"
-          autoCapitalize="characters"
-          value={hashId}
-          onChangeText={setHashId}
-        />
+    <View className="flex-1 bg-[#E4DDD3] pt-16">
+      {/* Top Navigation */}
+      <View className="w-full px-margin-mobile pb-lg flex-row justify-between items-center z-50">
+        <TouchableOpacity 
+          className="w-10 h-10 items-center justify-center rounded-full bg-surface-container-high"
+          onPress={() => router.back()}
+        >
+          <Text className="text-[20px]">←</Text>
+        </TouchableOpacity>
+        <Text className="font-sans text-[12px] font-semibold text-secondary tracking-widest uppercase">
+          Welcome Back
+        </Text>
+        <View className="w-10 h-10" />
       </View>
 
-      <View className="mb-8">
-        <Text className="text-on-surface-variant font-bold mb-2">Password *</Text>
-        <TextInput
-          className="bg-surface-container p-4 rounded-xl text-on-surface"
-          placeholder="••••••••"
-          placeholderTextColor="#6d7a78"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
-      </View>
+      <ScrollView className="flex-1 px-margin-mobile pt-md" showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+        <View className="mb-xl text-center md:text-left">
+          <Text className="text-[40px] font-bold text-primary mb-sm font-sans">
+            Access Journal
+          </Text>
+          <Text className="text-[16px] text-on-surface-variant font-sans">
+            Enter your credentials to decrypt your local archive.
+          </Text>
+        </View>
 
-      <TouchableOpacity 
-        className="bg-primary py-4 rounded-full w-full items-center mb-4"
-        onPress={handleLogin}
-      >
-        <Text className="text-on-primary font-sans font-bold text-lg">Login</Text>
-      </TouchableOpacity>
+        <View className="mb-6">
+          <Text className="text-on-surface-variant font-bold mb-2 font-sans text-[12px] uppercase tracking-widest">Hash ID *</Text>
+          <TextInput
+            className="bg-surface-container-lowest border border-outline-variant/30 p-4 rounded-xl text-on-surface font-sans shadow-sm"
+            autoCapitalize="none"
+            value={hashId}
+            onChangeText={setHashId}
+            selectionColor="#00A19B"
+          />
+        </View>
 
-      <TouchableOpacity 
-        className="py-4 items-center"
-        onPress={() => router.push('/(auth)/signup')}
-      >
-        <Text className="text-primary font-sans text-base">Create a new profile</Text>
-      </TouchableOpacity>
+        <View className="mb-12">
+          <Text className="text-on-surface-variant font-bold mb-2 font-sans text-[12px] uppercase tracking-widest">Password *</Text>
+          <View className="relative">
+            <TextInput
+              className="bg-surface-container-lowest border border-outline-variant/30 p-4 rounded-xl text-on-surface font-sans shadow-sm pr-12"
+              secureTextEntry={!showPassword}
+              value={password}
+              onChangeText={setPassword}
+              selectionColor="#00A19B"
+            />
+            <TouchableOpacity 
+              className="absolute right-4 top-4"
+              onPress={() => setShowPassword(!showPassword)}
+            >
+              <FontAwesome name={showPassword ? 'eye-slash' : 'eye'} size={20} color="#6d7a78" />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <TouchableOpacity 
+          className="w-full bg-[#00A19B] py-md rounded-full items-center shadow-lg active:opacity-90 flex-row justify-center mb-6"
+          onPress={handleLogin}
+        >
+          <Text className="text-on-primary font-sans font-semibold text-[20px] mr-2">Login</Text>
+          <Text className="text-on-primary text-[20px]">→</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          className="py-4 items-center"
+          onPress={() => router.push('/(auth)/category')}
+        >
+          <Text className="text-primary font-sans font-semibold text-[14px]">Don't have a profile? Create one</Text>
+        </TouchableOpacity>
+      </ScrollView>
     </View>
   );
 }

@@ -1,10 +1,11 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Alert, Image } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { useRealm } from '@realm/react';
 import { ObservationService } from '../../services/ObservationService';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 export default function CameraScreen() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -19,12 +20,12 @@ export default function CameraScreen() {
 
   if (!permission.granted) {
     return (
-      <View className="flex-1 bg-background items-center justify-center p-safe-margin">
-        <Text className="text-on-surface text-center mb-4 text-lg">
+      <View className="flex-1 bg-[#000000] items-center justify-center p-safe-margin">
+        <Text className="text-white text-center mb-4 text-[16px] font-sans">
           EnvDex needs camera access to capture observations.
         </Text>
-        <TouchableOpacity className="bg-primary py-4 px-8 rounded-full" onPress={requestPermission}>
-          <Text className="text-on-primary font-bold">Grant Permission</Text>
+        <TouchableOpacity className="bg-[#00A19B] py-md px-xl rounded-full" onPress={requestPermission}>
+          <Text className="text-white font-bold font-sans">Grant Permission</Text>
         </TouchableOpacity>
       </View>
     );
@@ -69,40 +70,76 @@ export default function CameraScreen() {
     <View className="flex-1 bg-black">
       <CameraView 
         ref={cameraRef}
-        className="flex-1" 
+        style={{ flex: 1 }}
         facing={cameraType}
       >
-        <View className="absolute bottom-12 flex-row w-full items-center justify-between px-12">
-          {/* Gallery Button */}
+        {/* Top Controls */}
+        <View className="absolute top-0 w-full z-20 flex-row justify-between items-center px-margin-mobile pt-[60px] pb-4 bg-black/40">
           <TouchableOpacity 
-            className="w-12 h-12 bg-surface-container/50 rounded-full items-center justify-center"
-            onPress={handleGallerySelect}
+            className="w-10 h-10 rounded-full bg-black/40 flex items-center justify-center border border-white/10 active:scale-95"
+            onPress={() => router.back()}
           >
-            <Text className="text-xl">🖼️</Text>
+            <FontAwesome name="times" size={18} color="#fff" />
           </TouchableOpacity>
-
-          {/* Capture Button */}
-          <TouchableOpacity 
-            className="w-20 h-20 bg-white rounded-full border-4 border-outline-variant items-center justify-center"
-            onPress={handleCapture}
-          />
-
-          {/* Flip Button */}
-          <TouchableOpacity 
-            className="w-12 h-12 bg-surface-container/50 rounded-full items-center justify-center"
-            onPress={() => setCameraType(cameraType === 'back' ? 'front' : 'back')}
-          >
-            <Text className="text-xl">🔄</Text>
-          </TouchableOpacity>
+          <View className="flex-row gap-4">
+            <TouchableOpacity className="w-10 h-10 rounded-full bg-black/40 flex items-center justify-center border border-white/10 active:scale-95 mr-2">
+              <FontAwesome name="bolt" size={18} color="#fff" />
+            </TouchableOpacity>
+            <TouchableOpacity className="w-10 h-10 rounded-full bg-black/40 flex items-center justify-center border border-white/10 active:scale-95">
+              <FontAwesome name="sun-o" size={18} color="#fff" />
+            </TouchableOpacity>
+          </View>
         </View>
 
-        {/* Close Button */}
-        <TouchableOpacity 
-          className="absolute top-12 left-6 w-10 h-10 bg-surface-container/50 rounded-full items-center justify-center"
-          onPress={() => router.back()}
-        >
-          <Text className="text-white text-lg font-bold">X</Text>
-        </TouchableOpacity>
+        {/* Center Focus Reticle */}
+        <View className="absolute inset-0 z-10 items-center justify-center pointer-events-none">
+          <View className="w-20 h-20 border-[1.5px] border-white/30 rounded-lg flex items-center justify-center">
+            <View className="w-2 h-2 bg-white/50 rounded-full" />
+          </View>
+        </View>
+
+        {/* Bottom Controls Area */}
+        <View className="absolute bottom-0 w-full z-20 bg-black/40 border-t border-white/10 pb-[40px] pt-md px-margin-mobile items-center">
+          
+          {/* Mode Switcher */}
+          <View className="flex-row gap-lg mb-lg">
+            <Text className="text-white font-bold font-sans text-[12px] tracking-widest mr-4">PHOTO</Text>
+            <Text className="text-white/60 font-semibold font-sans text-[12px] tracking-widest mr-4">VIDEO</Text>
+            <Text className="text-white/60 font-semibold font-sans text-[12px] tracking-widest">MACRO</Text>
+          </View>
+
+          {/* Main Action Bar */}
+          <View className="flex-row justify-between items-center w-full max-w-xs mb-lg">
+            
+            {/* Gallery Preview */}
+            <TouchableOpacity 
+              className="w-14 h-14 rounded-full overflow-hidden border-2 border-white/20 active:scale-95"
+              onPress={handleGallerySelect}
+            >
+              <Image source={{ uri: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc' }} className="w-full h-full object-cover" />
+            </TouchableOpacity>
+
+            {/* Shutter Button */}
+            <TouchableOpacity 
+              className="w-20 h-20 rounded-full bg-white p-1 active:scale-90 items-center justify-center"
+              style={{ shadowColor: '#00A19B', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.3, shadowRadius: 20 }}
+              onPress={handleCapture}
+            >
+              <View className="w-full h-full rounded-full bg-white border-2 border-black items-center justify-center">
+                <View className="w-[85%] h-[85%] rounded-full border border-gray-300" />
+              </View>
+            </TouchableOpacity>
+
+            {/* Camera Switch */}
+            <TouchableOpacity 
+              className="w-14 h-14 rounded-full bg-black/40 flex items-center justify-center border border-white/10 active:scale-95"
+              onPress={() => setCameraType(cameraType === 'back' ? 'front' : 'back')}
+            >
+              <FontAwesome name="refresh" size={20} color="#fff" />
+            </TouchableOpacity>
+          </View>
+        </View>
+
       </CameraView>
     </View>
   );

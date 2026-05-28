@@ -36,7 +36,25 @@
           }
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow EnvDex to access your camera for capturing observations."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow EnvDex to access your photos for observation media."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow EnvDex to automatically tag the location of your observations."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

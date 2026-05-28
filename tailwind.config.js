@@ -60,7 +60,15 @@ module.exports = {
         '3xl': '24px',
       },
       spacing: {
+        'margin-mobile': '20px',
         'safe-margin': '20px',
+        'gutter': '16px',
+        'xs': '8px',
+        'base': '4px',
+        'sm': '12px',
+        'md': '16px',
+        'lg': '24px',
+        'xl': '32px',
       }
     },
   },

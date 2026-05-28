@@ -37,7 +37,8 @@ export class ObservationService {
       latitude?: number;
       longitude?: number;
       locationText?: string;
-      speciesName: string; // The user input for species
+      animalNickname?: string;
+      scientificName?: string;
     }
   ): Promise<Observation> {
     const draft = realm.objectForPrimaryKey(DraftObservation, draftId);
@@ -49,14 +50,16 @@ export class ObservationService {
 
     realm.write(() => {
       // 1. Process Species Grouping
+      const searchName = observationData.animalNickname || observationData.scientificName || 'Unknown Species';
       let speciesMatch = realm.objects(SpeciesRecord)
-        .filtered('commonName ==[c] $0', observationData.speciesName)[0];
+        .filtered('commonName ==[c] $0', searchName)[0];
 
       if (!speciesMatch) {
         speciesMatch = realm.create(SpeciesRecord, {
           speciesId: Crypto.randomUUID(),
-          commonName: observationData.speciesName,
-          isUnknown: observationData.speciesName.trim() === '',
+          commonName: searchName,
+          scientificName: observationData.scientificName,
+          isUnknown: searchName === 'Unknown Species',
           totalObservations: 1,
         });
       } else {
@@ -68,7 +71,9 @@ export class ObservationService {
         observationId: Crypto.randomUUID(),
         userId,
         speciesId: speciesMatch.speciesId,
-        title: observationData.title,
+        title: observationData.title || observationData.animalNickname,
+        animalNickname: observationData.animalNickname,
+        scientificName: observationData.scientificName,
         notes: observationData.notes,
         latitude: observationData.latitude,
         longitude: observationData.longitude,

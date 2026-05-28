@@ -7,7 +7,7 @@ import { realmSchemas } from '../database/schema';
 
 export default function RootLayout() {
   return (
-    <RealmProvider schema={realmSchemas}>
+    <RealmProvider schema={realmSchemas} schemaVersion={2} deleteRealmIfMigrationNeeded={true}>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="(auth)" />

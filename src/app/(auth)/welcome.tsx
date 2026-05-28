@@ -1,39 +1,115 @@
-import { View, Text, TouchableOpacity } from 'react-native';
+import React, { useRef } from 'react';
+import { View, Text, TouchableOpacity, ImageBackground, ScrollView, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+
+const { width } = Dimensions.get('window');
+const CARD_WIDTH = width * 0.85 > 320 ? 320 : width * 0.85;
 
 export default function WelcomeScreen() {
   const router = useRouter();
 
+  const handleContinue = () => {
+    router.push('/(auth)/signup');
+  };
+
   return (
-    <View className="flex-1 bg-background items-center justify-center p-safe-margin">
-      <View className="flex-1 items-center justify-center w-full">
-        {/* Placeholder for Hero Illustration */}
-        <View className="w-48 h-48 bg-surface-container rounded-full mb-8 items-center justify-center">
-          <Text className="text-4xl">🌿</Text>
+    <View className="flex-1 bg-background">
+      <ImageBackground
+        source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAUvftwKuKS185duqe-iFWGapen9MwOqs_088-Uhccxle87tAL17GEJ_3erxpo1nz6vH24e8-YGur2I9zy6bl3VkiOQ9bxm4MggVlg15rLxUbhfzQyoy1p5ssT7DEIYLoTpwZgpn80f3Pw8Q3JsS97FTXqTKmdRKmOH7u-OV0CxOASfC_4zmnFyHUYvDb_FAGGCJsXU0-UBNaqSvjcOJ7FL7LXH9l-7ZTMZDl57oyx-ZkCjvpwOxhmzzWrdbzIIbwPc5D9CD_3ygwDr' }}
+        className="absolute inset-0 z-0"
+        resizeMode="cover"
+      >
+        <View className="absolute inset-0 bg-black/60 z-0" />
+      </ImageBackground>
+
+      <View className="relative z-10 flex-1 justify-between pb-safe-margin">
+        <View className="pt-[132px] px-margin-mobile items-center">
+          <Text className="text-[40px] font-bold text-surface-container-lowest tracking-tight font-sans text-center shadow-lg">
+            Welcome to EnvDex
+          </Text>
+          <Text className="text-[20px] font-semibold text-surface-container-low mt-xs opacity-90 font-sans text-center">
+            Capture discoveries
+          </Text>
         </View>
 
-        <Text className="text-3xl font-sans font-bold text-primary mb-4 text-center">
-          Welcome to EnvDex
-        </Text>
-        <Text className="text-on-surface text-base text-center mb-8 px-4 leading-6">
-          Your personal offline-first biodiversity archive and nature journal. Capture the world around you.
-        </Text>
-      </View>
+        <View className="w-full pb-lg">
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            snapToInterval={CARD_WIDTH + 16}
+            decelerationRate="fast"
+            contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 }}
+          >
+            {/* Card 1 */}
+            <View 
+              className="bg-surface/90 rounded-[24px] p-lg mr-4 border border-outline-variant/30 justify-between"
+              style={{ width: CARD_WIDTH }}
+            >
+              <View className="w-12 h-12 rounded-full bg-primary-container/20 items-center justify-center mb-sm">
+                <FontAwesome name="tree" size={24} color="#006763" />
+              </View>
+              <View>
+                <Text className="text-[20px] font-semibold text-on-surface mb-base font-sans">Precision Tracking</Text>
+                <Text className="text-[14px] text-on-surface-variant leading-relaxed font-sans">
+                  Log botanical and faunal specimens with exact geolocation and environmental metadata.
+                </Text>
+              </View>
+            </View>
 
-      <View className="w-full pb-8">
-        <TouchableOpacity 
-          className="bg-primary py-4 rounded-full w-full items-center mb-4"
-          onPress={() => router.push('/(auth)/category')}
-        >
-          <Text className="text-on-primary font-sans font-bold text-lg">Get Started</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          className="py-2 items-center"
-          onPress={() => router.push('/(auth)/login')}
-        >
-          <Text className="text-primary font-sans text-base">I already have an account</Text>
-        </TouchableOpacity>
+            {/* Card 2 */}
+            <View 
+              className="bg-surface/90 rounded-[24px] p-lg mr-4 border border-outline-variant/30 justify-between"
+              style={{ width: CARD_WIDTH }}
+            >
+              <View className="w-12 h-12 rounded-full bg-primary-container/20 items-center justify-center mb-sm">
+                <FontAwesome name="search-plus" size={24} color="#006763" />
+              </View>
+              <View>
+                <Text className="text-[20px] font-semibold text-on-surface mb-base font-sans">Deep Analysis</Text>
+                <Text className="text-[14px] text-on-surface-variant leading-relaxed font-sans">
+                  Access high-resolution taxonomic databases to identify rare variations in the field.
+                </Text>
+              </View>
+            </View>
+
+            {/* Card 3 */}
+            <View 
+              className="bg-surface/90 rounded-[24px] p-lg mr-4 border border-outline-variant/30 justify-between"
+              style={{ width: CARD_WIDTH }}
+            >
+              <View className="w-12 h-12 rounded-full bg-primary-container/20 items-center justify-center mb-sm">
+                <FontAwesome name="globe" size={24} color="#006763" />
+              </View>
+              <View>
+                <Text className="text-[20px] font-semibold text-on-surface mb-base font-sans">Global Network</Text>
+                <Text className="text-[14px] text-on-surface-variant leading-relaxed font-sans">
+                  Contribute your findings to a decentralized network of naturalists and researchers.
+                </Text>
+              </View>
+            </View>
+          </ScrollView>
+
+          <View className="px-margin-mobile w-full max-w-[500px] mx-auto mt-xs gap-y-3">
+            <TouchableOpacity 
+              className="w-full bg-primary rounded-full py-[18px] flex-row items-center justify-center shadow-md active:opacity-80"
+              onPress={() => router.push('/(auth)/category')}
+            >
+              <Text className="text-on-primary font-bold text-[14px] font-sans">
+                Create New Profile
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              className="w-full bg-surface-container-lowest rounded-full py-[18px] flex-row items-center justify-center border border-outline-variant/30 shadow-sm active:opacity-80"
+              onPress={() => router.push('/(auth)/login')}
+            >
+              <Text className="text-primary font-bold text-[14px] font-sans">
+                Already a User? Log In
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
     </View>
   );
