@@ -17,7 +17,7 @@ export default function SpeciesExplorerScreen() {
   const { userHashId } = useAuthStore();
   
   const currentUser = useQuery(User).filtered('hashId == $0', userHashId)[0];
-  const userObservations = useQuery(Observation).filtered('userId == $0 AND deletedStatus == false', currentUser?.userId || '');
+  const userObservations = useQuery(Observation).filtered('userId == $0 AND deletedStatus == false', userHashId || '');
   const userSpeciesIds = Array.from(new Set(userObservations.map(o => o.speciesId))).filter(Boolean);
 
   const species = useQuery(SpeciesRecord).filtered('speciesId IN $0', userSpeciesIds);

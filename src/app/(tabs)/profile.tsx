@@ -17,7 +17,7 @@ export default function ProfileScreen() {
 
   // Get user data
   const currentUser = useQuery(User).filtered('hashId == $0', userHashId)[0];
-  const userObservations = useQuery(Observation).filtered('userId == $0 AND deletedStatus == false', currentUser?.userId || '');
+  const userObservations = useQuery(Observation).filtered('userId == $0 AND deletedStatus == false', userHashId || '');
   const totalObservations = userObservations.length;
   // Sandboxing species count: unique species cataloged by user
   const totalSpecies = Array.from(new Set(userObservations.map(o => o.speciesId))).filter(Boolean).length;

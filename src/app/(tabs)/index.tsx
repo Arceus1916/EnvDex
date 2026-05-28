@@ -14,7 +14,7 @@ export default function HomeScreen() {
   // Sandbox query to current user
   const currentUser = useQuery(User).filtered('hashId == $0', userHashId)[0];
   const observations = useQuery(Observation)
-    .filtered('userId == $0 AND deletedStatus == false', currentUser?.userId || '')
+    .filtered('userId == $0 AND deletedStatus == false', userHashId || '')
     .sorted('timestamp', true);
 
   const handleDelete = (item: Observation) => {
@@ -60,7 +60,7 @@ export default function HomeScreen() {
           
           <View className="absolute top-sm left-sm bg-surface/90 rounded-full px-sm py-1 border border-outline-variant/20 flex-row items-center">
             <View className="w-2 h-2 rounded-full bg-primary mr-1" />
-            <Text className="font-sans text-[12px] font-semibold text-on-surface uppercase">{item.categoryId || 'General'}</Text>
+            <Text className="font-sans text-[12px] font-semibold text-on-surface uppercase">{item.observationTags?.[0] || 'General'}</Text>
           </View>
         </View>
 

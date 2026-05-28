@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, Image, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useRealm, useObject } from '@realm/react';
 import * as Location from 'expo-location';
@@ -95,7 +95,10 @@ export default function ObservationDetailsScreen() {
   const firstMedia = mediaCount > 0 ? draft.tempMediaUris![0] : 'https://images.unsplash.com/photo-1590209706318-7b98a58f4eb8';
 
   return (
-    <View className="flex-1 bg-surface-container relative">
+    <KeyboardAvoidingView 
+      className="flex-1 bg-surface-container relative"
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
       {/* Header */}
       <View className="absolute top-0 w-full z-50 bg-surface/90 border-b border-outline-variant/20 shadow-sm pt-safe-margin px-margin-mobile pb-2 flex-row justify-between items-center h-[90px]">
         <TouchableOpacity 
@@ -172,7 +175,13 @@ export default function ObservationDetailsScreen() {
              </View>
           </View>
           <View className="flex-col">
-            <Text className="font-sans text-[14px] text-on-surface font-semibold">{locationText}</Text>
+            <TextInput
+              className="font-sans text-[14px] text-on-surface font-semibold bg-surface-container-lowest border border-outline-variant/30 rounded-lg px-3 py-2"
+              value={locationText}
+              onChangeText={setLocationText}
+              placeholder="Enter location manually..."
+              placeholderTextColor="#6d7a78"
+            />
             <Text className="font-sans text-[12px] text-on-surface-variant mt-1">Lat: {coords?.lat?.toFixed(4) || '--'}° N, Lon: {coords?.lon?.toFixed(4) || '--'}° W</Text>
           </View>
         </View>
@@ -227,6 +236,6 @@ export default function ObservationDetailsScreen() {
           <Text className="font-sans text-[18px] font-semibold text-on-primary ml-2">Save Observation</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
