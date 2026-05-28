@@ -1,5 +1,5 @@
 import Realm from 'realm';
-import { v4 as uuidv4 } from 'uuid';
+import * as Crypto from 'expo-crypto';
 import { User } from '../database/schema';
 
 export class AuthService {
@@ -45,7 +45,7 @@ export class AuthService {
     let newUser!: User;
     realm.write(() => {
       newUser = realm.create(User, {
-        userId: uuidv4(),
+        userId: Crypto.randomUUID(),
         hashId,
         fullName,
         username,

@@ -1,5 +1,5 @@
 import Realm from 'realm';
-import { v4 as uuidv4 } from 'uuid';
+import * as Crypto from 'expo-crypto';
 import * as FileSystem from 'expo-file-system';
 import { Observation, DraftObservation, MediaAsset, SpeciesRecord } from '../database/schema';
 
@@ -8,7 +8,7 @@ export class ObservationService {
    * Initialize a new draft when media is first captured.
    */
   static async createDraft(realm: Realm, initialMediaUris: string[]): Promise<DraftObservation> {
-    const draftId = uuidv4();
+    const draftId = Crypto.randomUUID();
     let newDraft!: DraftObservation;
 
     realm.write(() => {
@@ -54,7 +54,7 @@ export class ObservationService {
 
       if (!speciesMatch) {
         speciesMatch = realm.create(SpeciesRecord, {
-          speciesId: uuidv4(),
+          speciesId: Crypto.randomUUID(),
           commonName: observationData.speciesName,
           isUnknown: observationData.speciesName.trim() === '',
           totalObservations: 1,
@@ -65,7 +65,7 @@ export class ObservationService {
 
       // 2. Create Observation
       savedObservation = realm.create(Observation, {
-        observationId: uuidv4(),
+        observationId: Crypto.randomUUID(),
         userId,
         speciesId: speciesMatch.speciesId,
         title: observationData.title,
@@ -84,7 +84,7 @@ export class ObservationService {
       if (draft.tempMediaUris) {
         for (const uri of draft.tempMediaUris) {
           const mediaAsset = realm.create(MediaAsset, {
-            mediaId: uuidv4(),
+            mediaId: Crypto.randomUUID(),
             observationId: savedObservation.observationId,
             type: 'image',
             localUri: uri,

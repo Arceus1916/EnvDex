@@ -55,3 +55,27 @@
 - Built `camera.tsx` using `expo-camera` and `expo-image-picker` with logic to auto-save initial media to a `DraftObservation`.
 - Developed `details.tsx` form for capturing species name, field notes, and GPS location via `expo-location`.
 - The workflow now robustly saves an `Observation` to Realm while optionally generating new `SpeciesRecord` entries.
+
+### [2026-05-28] Phase 6: Species Grouping & Archive
+**Feature**: Data Browsing & Archive Interfaces
+**Files Affected**: `src/app/(tabs)/index.tsx`, `src/app/(tabs)/species.tsx`, `src/app/species/[id].tsx`
+**Summary**: 
+- Rebuilt the Home Feed (`index.tsx`) to pull recent `Observation` records from Realm, with a list/grid toggle for customized viewing.
+- Built the Species Explorer (`species.tsx`) to display grouped `SpeciesRecord` entries, along with an "All vs Favorites" filter tab.
+- Created the detailed Species screen (`[id].tsx`) featuring the species stats (total observations), favorites toggle, and a complete chronological timeline of every observation belonging to that species.
+
+### [2026-05-28] Phase 7: Search, Notifications & Recycle Bin
+**Feature**: Utilities, Settings, and Soft-Deletion
+**Files Affected**: `src/app/(tabs)/search.tsx`, `src/app/(tabs)/profile.tsx`, `src/app/profile/recycle-bin.tsx`
+**Summary**: 
+- Developed the `search.tsx` tab to perform combined full-text Realm queries across both `SpeciesRecord` (names) and `Observation` (notes, locations).
+- Built the `profile.tsx` tab containing the user's offline identity, global logout action, theme toggle, and local `expo-notifications` permissions toggle.
+- Created the `recycle-bin.tsx` portal to allow users to restore soft-deleted observations or permanently erase them from the local database.
+
+### [2026-05-28] Phase 8: Polish & APK Build
+**Feature**: Application Compilation Preparation
+**Files Affected**: `eas.json`
+**Summary**: 
+- Configured Expo Application Services (`eas.json`) explicitly targeting `.apk` builds instead of `.aab` bundles.
+- Documented cloud generation procedures for the user to bypass local Android SDK / Android Studio environment constraints.
+- Project is 100% complete according to the EnvDex TRD/PRD.

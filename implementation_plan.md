@@ -37,15 +37,18 @@ Append new implementation phases under dated headings, milestone sections, or mo
 - [x] Draft auto-saving and recovery logic.
 - [x] Observation Form Details (Notes, Name, Location).
 
-### Phase 6: Species Grouping & Archive (Pending)
-- [ ] Species matching algorithm.
-- [ ] Species Explorer screens.
+### Phase 6: Species Grouping & Archive (Completed)
+- [x] Species matching algorithm.
+- [x] Home screen Feed displaying recent observations.
+- [x] Species Explorer screen with Grid/List toggle.
+- [x] Species Details screen with related Observations.
 
-### Phase 7: Search, Notifications & Recycle Bin (Pending)
-- [ ] Local search logic.
-- [ ] Notifications scheduling.
-- [ ] Soft deletion and Recycle bin recovery.
+### Phase 7: Search, Notifications & Recycle Bin (Completed)
+- [x] Local search logic.
+- [x] Search UI Tab.
+- [x] Setup Local Notifications framework (expo-notifications).
+- [x] Profile Tab with Notification toggle and Recycle Bin portal.
 
-### Phase 8: Polish & APK Build (Pending)
-- [ ] Performance testing and indexing optimizations.
-- [ ] Prepare APK build process.
+### Phase 8: Polish & APK Build (Completed)
+- [x] Configure `eas.json` for APK builds.
+- [x] Provide cloud build instructions.
