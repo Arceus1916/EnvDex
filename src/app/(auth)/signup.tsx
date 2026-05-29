@@ -32,7 +32,7 @@ export default function SignupScreen() {
       });
 
       loginToStore(user.hashId);
-      Alert.alert('Success', `Account created! Your Hash ID is: ${user.hashId}\nSave this ID if you need to log back in.`, [
+      Alert.alert('Success', `Account created successfully!`, [
         { text: 'OK', onPress: () => router.replace('/(tabs)') }
       ]);
     } catch (error: any) {

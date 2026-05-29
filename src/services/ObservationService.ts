@@ -39,6 +39,7 @@ export class ObservationService {
       locationText?: string;
       animalNickname?: string;
       scientificName?: string;
+      observationTags?: string[];
     }
   ): Promise<Observation> {
     const draft = realm.objectForPrimaryKey(DraftObservation, draftId);
@@ -50,20 +51,32 @@ export class ObservationService {
 
     realm.write(() => {
       // 1. Process Species Grouping
-      const searchName = observationData.animalNickname || observationData.scientificName || 'Unknown Species';
-      let speciesMatch = realm.objects(SpeciesRecord)
-        .filtered('commonName ==[c] $0', searchName)[0];
+      const commonSearch = observationData.animalNickname || observationData.scientificName || 'Unknown Species';
+      const scientificSearch = observationData.scientificName;
+
+      let speciesMatch;
+      if (scientificSearch && scientificSearch !== commonSearch) {
+        speciesMatch = realm.objects(SpeciesRecord)
+          .filtered('commonName ==[c] $0 OR scientificName ==[c] $1', commonSearch, scientificSearch)[0];
+      } else {
+        speciesMatch = realm.objects(SpeciesRecord)
+          .filtered('commonName ==[c] $0', commonSearch)[0];
+      }
 
       if (!speciesMatch) {
         speciesMatch = realm.create(SpeciesRecord, {
           speciesId: Crypto.randomUUID(),
-          commonName: searchName,
+          commonName: commonSearch,
           scientificName: observationData.scientificName,
-          isUnknown: searchName === 'Unknown Species',
+          isUnknown: commonSearch === 'Unknown Species',
           totalObservations: 1,
         });
       } else {
         speciesMatch.totalObservations += 1;
+        // If we didn't have a scientific name before, but we have one now, we could update it (optional)
+        if (!speciesMatch.scientificName && observationData.scientificName) {
+          speciesMatch.scientificName = observationData.scientificName;
+        }
       }
 
       // 2. Create Observation
@@ -80,6 +93,7 @@ export class ObservationService {
         locationText: observationData.locationText,
         timestamp: new Date(),
         draftStatus: false,
+        observationTags: observationData.observationTags || [],
         createdAt: new Date(),
         updatedAt: new Date(),
       });

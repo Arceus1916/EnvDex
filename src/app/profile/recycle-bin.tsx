@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, FlatList, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useRealm, useQuery } from '@realm/react';
-import { Observation } from '../../database/schema';
+import { Observation, SpeciesRecord } from '../../database/schema';
 
 export default function RecycleBinScreen() {
   const router = useRouter();
@@ -31,7 +31,18 @@ export default function RecycleBinScreen() {
           style: 'destructive',
           onPress: () => {
             realm.write(() => {
+              const speciesId = obs.speciesId;
               realm.delete(obs);
+              
+              if (speciesId) {
+                const remaining = realm.objects(Observation).filtered('speciesId == $0', speciesId);
+                if (remaining.length === 0) {
+                  const species = realm.objects(SpeciesRecord).filtered('speciesId == $0', speciesId)[0];
+                  if (species) {
+                    realm.delete(species);
+                  }
+                }
+              }
             });
           }
         }

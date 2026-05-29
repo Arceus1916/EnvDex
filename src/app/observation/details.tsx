@@ -21,6 +21,9 @@ export default function ObservationDetailsScreen() {
   const [notes, setNotes] = useState('');
   const [locationText, setLocationText] = useState('Fetching location...');
   const [coords, setCoords] = useState<{lat: number; lon: number} | null>(null);
+  
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [customTagInput, setCustomTagInput] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -61,6 +64,7 @@ export default function ObservationDetailsScreen() {
         locationText,
         latitude: coords?.lat,
         longitude: coords?.lon,
+        observationTags: selectedTags,
       });
 
       Alert.alert('Saved!', 'Observation added to your archive.', [
@@ -190,17 +194,62 @@ export default function ObservationDetailsScreen() {
         <View className="bg-surface rounded-[24px] p-6 shadow-sm flex-col gap-4 mb-6 border border-outline-variant/10">
           <Text className="font-sans text-[12px] font-semibold text-secondary uppercase tracking-wider">Attributes</Text>
           <View className="flex-row flex-wrap gap-2">
-            <TouchableOpacity className="bg-[#7ef6ee] px-4 py-2 rounded-full flex-row items-center border border-primary/10">
-              <FontAwesome name="tree" size={12} color="#00201e" />
-              <Text className="font-sans text-[12px] font-semibold text-[#00201e] ml-2">Rainforest</Text>
-            </TouchableOpacity>
-            <TouchableOpacity className="bg-[#7ef6ee] px-4 py-2 rounded-full flex-row items-center border border-primary/10">
-              <FontAwesome name="sun-o" size={12} color="#00201e" />
-              <Text className="font-sans text-[12px] font-semibold text-[#00201e] ml-2">Daytime</Text>
-            </TouchableOpacity>
-            <TouchableOpacity className="bg-surface-container-highest border border-outline-variant border-dashed px-4 py-2 rounded-full flex-row items-center">
-              <FontAwesome name="plus" size={12} color="#474743" />
-              <Text className="font-sans text-[12px] font-semibold text-[#474743] ml-2">Add Tag</Text>
+            {['Flora', 'Fauna', 'Fungi'].map((tag) => {
+              const isSelected = selectedTags.includes(tag);
+              return (
+                <TouchableOpacity 
+                  key={tag}
+                  onPress={() => {
+                    if (isSelected) {
+                      setSelectedTags(selectedTags.filter(t => t !== tag));
+                    } else {
+                      setSelectedTags([...selectedTags, tag]);
+                    }
+                  }}
+                  className={`px-4 py-2 rounded-full flex-row items-center border ${isSelected ? 'bg-primary border-primary' : 'bg-surface-container border-outline-variant/30'}`}
+                >
+                  <Text className={`font-sans text-[12px] font-semibold ${isSelected ? 'text-on-primary' : 'text-on-surface'}`}>{tag}</Text>
+                </TouchableOpacity>
+              );
+            })}
+            
+            {/* Custom Tags rendering */}
+            {selectedTags.filter(t => !['Flora', 'Fauna', 'Fungi'].includes(t)).map(tag => (
+              <TouchableOpacity 
+                key={tag}
+                onPress={() => setSelectedTags(selectedTags.filter(t => t !== tag))}
+                className="bg-secondary px-4 py-2 rounded-full flex-row items-center border border-secondary"
+              >
+                <Text className="font-sans text-[12px] font-semibold text-on-primary mr-1">{tag}</Text>
+                <FontAwesome name="times" size={10} color="#fff" />
+              </TouchableOpacity>
+            ))}
+          </View>
+          
+          <View className="flex-row items-center mt-2">
+            <TextInput
+              className="flex-1 bg-surface-container-lowest border-[1.5px] border-outline-variant/50 rounded-xl px-4 py-2 font-sans text-[14px] text-on-surface mr-2"
+              placeholder="Add custom tag..."
+              placeholderTextColor="#6d7a78"
+              value={customTagInput}
+              onChangeText={setCustomTagInput}
+              onSubmitEditing={() => {
+                if (customTagInput.trim() && !selectedTags.includes(customTagInput.trim())) {
+                  setSelectedTags([...selectedTags, customTagInput.trim()]);
+                  setCustomTagInput('');
+                }
+              }}
+            />
+            <TouchableOpacity 
+              className="bg-primary-container w-10 h-10 rounded-xl items-center justify-center border border-primary/20"
+              onPress={() => {
+                if (customTagInput.trim() && !selectedTags.includes(customTagInput.trim())) {
+                  setSelectedTags([...selectedTags, customTagInput.trim()]);
+                  setCustomTagInput('');
+                }
+              }}
+            >
+              <FontAwesome name="plus" size={14} color="#00201e" />
             </TouchableOpacity>
           </View>
         </View>

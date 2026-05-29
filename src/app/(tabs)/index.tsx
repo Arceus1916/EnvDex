@@ -28,7 +28,8 @@ export default function HomeScreen() {
           style: 'destructive',
           onPress: () => {
             realm.write(() => {
-              realm.delete(item);
+              item.deletedStatus = true;
+              item.recycleBinTimestamp = new Date();
             });
           }
         }

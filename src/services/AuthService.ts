@@ -64,12 +64,12 @@ export class AuthService {
    */
   static login(
     realm: Realm,
-    { hashId, passwordHash }: { hashId: string; passwordHash: string }
+    { username, passwordHash }: { username: string; passwordHash: string }
   ): User | null {
-    const users = realm.objects(User).filtered('hashId == $0 AND passwordHash == $1', hashId, passwordHash);
+    const users = realm.objects(User).filtered('username ==[c] $0 AND passwordHash == $1', username, passwordHash);
     
     if (users.length === 0) {
-      throw new Error('Invalid Hash ID or password.');
+      throw new Error('Invalid username or password.');
     }
     
     return users[0];

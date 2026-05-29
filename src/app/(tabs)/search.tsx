@@ -20,12 +20,16 @@ export default function SpeciesExplorerScreen() {
   const userObservations = useQuery(Observation).filtered('userId == $0 AND deletedStatus == false', userHashId || '');
   const userSpeciesIds = Array.from(new Set(userObservations.map(o => o.speciesId))).filter(Boolean);
 
-  const species = useQuery(SpeciesRecord).filtered('speciesId IN $0', userSpeciesIds);
+  const allSpecies = useQuery(SpeciesRecord);
+  const species = allSpecies.filter(s => userSpeciesIds.includes(s.speciesId));
 
   const safeQuery = query.trim();
 
   const filteredSpecies = safeQuery.length > 0
-    ? species.filtered('commonName CONTAINS[c] $0 OR scientificName CONTAINS[c] $0', safeQuery)
+    ? species.filter(s => 
+        s.commonName?.toLowerCase().includes(safeQuery.toLowerCase()) || 
+        s.scientificName?.toLowerCase().includes(safeQuery.toLowerCase())
+      )
     : species;
 
   const renderItem = ({ item }: { item: any }) => {

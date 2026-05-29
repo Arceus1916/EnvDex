@@ -11,19 +11,19 @@ export default function LoginScreen() {
   const realm = useRealm();
   const loginToStore = useAuthStore((state) => state.login);
 
-  const [hashId, setHashId] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = () => {
-    if (!hashId || !password) {
-      Alert.alert('Error', 'Hash ID and Password are required.');
+    if (!username || !password) {
+      Alert.alert('Error', 'Username and Password are required.');
       return;
     }
 
     try {
       const user = AuthService.login(realm, {
-        hashId: hashId.toUpperCase(),
+        username: username,
         passwordHash: password,
       });
 
@@ -63,12 +63,12 @@ export default function LoginScreen() {
         </View>
 
         <View className="mb-6">
-          <Text className="text-on-surface-variant font-bold mb-2 font-sans text-[12px] uppercase tracking-widest">Hash ID *</Text>
+          <Text className="text-on-surface-variant font-bold mb-2 font-sans text-[12px] uppercase tracking-widest">Username *</Text>
           <TextInput
             className="bg-surface-container-lowest border border-outline-variant/30 p-4 rounded-xl text-on-surface font-sans shadow-sm"
             autoCapitalize="none"
-            value={hashId}
-            onChangeText={setHashId}
+            value={username}
+            onChangeText={setUsername}
             selectionColor="#00A19B"
           />
         </View>
