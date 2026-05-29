@@ -74,7 +74,7 @@ export default function ProfileScreen() {
   const categoryTag = currentUser?.categoryTag || 'Beginner';
   const profilePicSource = currentUser?.profilePicUri 
     ? { uri: currentUser.profilePicUri } 
-    : { uri: 'https://i.pravatar.cc/150?img=33' };
+    : { uri: `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName || 'Naturalist')}&background=00A19B&color=fff&size=150` };
 
   return (
     <View className="flex-1 bg-background relative">

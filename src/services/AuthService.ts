@@ -42,6 +42,12 @@ export class AuthService {
       throw new Error('Hash ID already exists. Please generate a new one.');
     }
 
+    // Check for existing username (case-insensitive)
+    const existingUsername = realm.objects(User).filtered('username ==[c] $0', username);
+    if (existingUsername.length > 0) {
+      throw new Error('This username is already taken. Please choose another.');
+    }
+
     let newUser!: User;
     realm.write(() => {
       newUser = realm.create(User, {

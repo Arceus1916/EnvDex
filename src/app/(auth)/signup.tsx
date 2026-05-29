@@ -23,6 +23,27 @@ export default function SignupScreen() {
       return;
     }
 
+    // Username validation: spaces are generally not allowed if it's alphanumeric + special chars only
+    const usernameRegex = /^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*$/;
+    if (!usernameRegex.test(username) || username.includes(' ')) {
+      Alert.alert('Error', 'Username can only contain alphabets, numbers, and special characters (no spaces).');
+      return;
+    }
+
+    // Password validation: length >= 8, one uppercase, one lowercase, one number, one special
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasSpecial = /[^A-Za-z0-9]/.test(password);
+    
+    if (password.length < 8 || !hasUpperCase || !hasLowerCase || !hasNumbers || !hasSpecial) {
+      Alert.alert(
+        'Weak Password', 
+        'Password must be at least 8 characters long and include:\n• One uppercase letter\n• One lowercase letter\n• One number\n• One special character'
+      );
+      return;
+    }
+
     try {
       const user = await AuthService.signup(realm, {
         fullName,
