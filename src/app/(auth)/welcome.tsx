@@ -47,12 +47,12 @@ export default function WelcomeScreen() {
               style={{ width: CARD_WIDTH }}
             >
               <View className="w-12 h-12 rounded-full bg-primary-container/20 items-center justify-center mb-sm">
-                <FontAwesome name="tree" size={24} color="#006763" />
+                <FontAwesome name="book" size={24} color="#006763" />
               </View>
               <View>
-                <Text className="text-[20px] font-semibold text-on-surface mb-base font-sans">Precision Tracking</Text>
+                <Text className="text-[20px] font-semibold text-on-surface mb-base font-sans">Local Species Tracking</Text>
                 <Text className="text-[14px] text-on-surface-variant leading-relaxed font-sans">
-                  Log botanical and faunal specimens with exact geolocation and environmental metadata.
+                  Log botanical and faunal specimens with ease, creating a personal library of nature encounters.
                 </Text>
               </View>
             </View>
@@ -63,12 +63,12 @@ export default function WelcomeScreen() {
               style={{ width: CARD_WIDTH }}
             >
               <View className="w-12 h-12 rounded-full bg-primary-container/20 items-center justify-center mb-sm">
-                <FontAwesome name="search-plus" size={24} color="#006763" />
+                <FontAwesome name="pencil-square-o" size={24} color="#006763" />
               </View>
               <View>
-                <Text className="text-[20px] font-semibold text-on-surface mb-base font-sans">Deep Analysis</Text>
+                <Text className="text-[20px] font-semibold text-on-surface mb-base font-sans">Personal Journal</Text>
                 <Text className="text-[14px] text-on-surface-variant leading-relaxed font-sans">
-                  Access high-resolution taxonomic databases to identify rare variations in the field.
+                  Maintain a private, offline catalog of your own nature discoveries, sightings, and media.
                 </Text>
               </View>
             </View>
@@ -79,12 +79,12 @@ export default function WelcomeScreen() {
               style={{ width: CARD_WIDTH }}
             >
               <View className="w-12 h-12 rounded-full bg-primary-container/20 items-center justify-center mb-sm">
-                <FontAwesome name="globe" size={24} color="#006763" />
+                <FontAwesome name="shield" size={24} color="#006763" />
               </View>
               <View>
-                <Text className="text-[20px] font-semibold text-on-surface mb-base font-sans">Global Network</Text>
+                <Text className="text-[20px] font-semibold text-on-surface mb-base font-sans">Offline Archive</Text>
                 <Text className="text-[14px] text-on-surface-variant leading-relaxed font-sans">
-                  Contribute your findings to a decentralized network of naturalists and researchers.
+                  Your data stays securely on your device, completely isolated and accessible without any internet.
                 </Text>
               </View>
             </View>

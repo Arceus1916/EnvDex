@@ -50,40 +50,44 @@ export class ObservationService {
     let savedObservation!: Observation;
 
     realm.write(() => {
-      // 1. Process Species Grouping
-      const commonSearch = observationData.animalNickname || observationData.scientificName || 'Unknown Species';
+      // 1. Process Species Grouping (Only by scientificName)
       const scientificSearch = observationData.scientificName;
+      let targetSpeciesId: string;
 
-      let speciesMatch;
-      if (scientificSearch && scientificSearch !== commonSearch) {
-        speciesMatch = realm.objects(SpeciesRecord)
-          .filtered('commonName ==[c] $0 OR scientificName ==[c] $1', commonSearch, scientificSearch)[0];
+      if (scientificSearch && scientificSearch.trim().length > 0) {
+        // Try to merge if scientific name exists for this user
+        let snSpecies = realm.objects(SpeciesRecord).filtered('scientificName ==[c] $0 AND userId == $1', scientificSearch.trim(), userId)[0];
+        if (!snSpecies) {
+          snSpecies = realm.create(SpeciesRecord, {
+            speciesId: Crypto.randomUUID(),
+            userId,
+            commonName: observationData.animalNickname || observationData.title || 'Unknown Sighting',
+            scientificName: scientificSearch.trim(),
+            isUnknown: false,
+            totalObservations: 1,
+          });
+        } else {
+          snSpecies.totalObservations += 1;
+        }
+        targetSpeciesId = snSpecies.speciesId;
       } else {
-        speciesMatch = realm.objects(SpeciesRecord)
-          .filtered('commonName ==[c] $0', commonSearch)[0];
-      }
-
-      if (!speciesMatch) {
-        speciesMatch = realm.create(SpeciesRecord, {
+        // No scientific name -> DO NOT MERGE. Create standalone record.
+        const standaloneSpecies = realm.create(SpeciesRecord, {
           speciesId: Crypto.randomUUID(),
-          commonName: commonSearch,
-          scientificName: observationData.scientificName,
-          isUnknown: commonSearch === 'Unknown Species',
+          userId,
+          commonName: observationData.animalNickname || observationData.title || 'Unknown Sighting',
+          scientificName: undefined,
+          isUnknown: true,
           totalObservations: 1,
         });
-      } else {
-        speciesMatch.totalObservations += 1;
-        // If we didn't have a scientific name before, but we have one now, we could update it (optional)
-        if (!speciesMatch.scientificName && observationData.scientificName) {
-          speciesMatch.scientificName = observationData.scientificName;
-        }
+        targetSpeciesId = standaloneSpecies.speciesId;
       }
 
       // 2. Create Observation
       savedObservation = realm.create(Observation, {
         observationId: Crypto.randomUUID(),
         userId,
-        speciesId: speciesMatch.speciesId,
+        speciesId: targetSpeciesId,
         title: observationData.title || observationData.animalNickname,
         animalNickname: observationData.animalNickname,
         scientificName: observationData.scientificName,
@@ -118,5 +122,50 @@ export class ObservationService {
     });
 
     return savedObservation;
+  }
+
+  /**
+   * Update an existing observation, for instance adding new media or changing details.
+   */
+  static async updateObservation(
+    realm: Realm,
+    observationId: string,
+    updates: {
+      title?: string;
+      notes?: string;
+      locationText?: string;
+      animalNickname?: string;
+      scientificName?: string;
+      observationTags?: string[];
+    },
+    newMediaUris?: string[]
+  ): Promise<Observation> {
+    const obs = realm.objectForPrimaryKey(Observation, observationId);
+    if (!obs) throw new Error('Observation not found.');
+
+    realm.write(() => {
+      if (updates.title !== undefined) obs.title = updates.title;
+      if (updates.notes !== undefined) obs.notes = updates.notes;
+      if (updates.locationText !== undefined) obs.locationText = updates.locationText;
+      if (updates.animalNickname !== undefined) obs.animalNickname = updates.animalNickname;
+      if (updates.scientificName !== undefined) obs.scientificName = updates.scientificName;
+      if (updates.observationTags !== undefined) obs.observationTags = updates.observationTags;
+      obs.updatedAt = new Date();
+
+      if (newMediaUris && newMediaUris.length > 0) {
+        for (const uri of newMediaUris) {
+          const mediaAsset = realm.create(MediaAsset, {
+            mediaId: Crypto.randomUUID(),
+            observationId: obs.observationId,
+            type: 'image',
+            localUri: uri,
+            createdAt: new Date(),
+          });
+          obs.media.push(mediaAsset);
+        }
+      }
+    });
+
+    return obs;
   }
 }

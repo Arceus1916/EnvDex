@@ -118,7 +118,7 @@ export default function StatsScreen() {
         <View className="w-10" />
       </View>
 
-      <ScrollView className="flex-1 pt-[100px] px-margin-mobile" contentContainerStyle={{ paddingBottom: 40 }}>
+      <ScrollView className="flex-1 pt-[100px] px-margin-mobile" contentContainerStyle={{ paddingBottom: 140 }}>
         
         {/* Header Info */}
         <View className="mb-6">
@@ -233,7 +233,7 @@ export default function StatsScreen() {
 
           <TouchableOpacity 
             className="mt-6 flex-row items-center justify-center gap-2 bg-primary py-3 rounded-full hover:opacity-90 active:scale-95 transition-all"
-            onPress={() => router.push('/(tabs)/')}
+            onPress={() => router.push('/(tabs)')}
           >
             <FontAwesome name="plus-circle" size={18} color="#fff" />
             <Text className="font-sans text-[14px] font-semibold text-white">Log New Observation</Text>
@@ -246,7 +246,7 @@ export default function StatsScreen() {
           <View className="bg-white border border-outline-variant/50 rounded-xl overflow-hidden divide-y divide-outline-variant/30">
             
             {recentObservations.length > 0 ? recentObservations.map(obs => (
-              <TouchableOpacity key={obs.observationId} className="p-4 flex-row items-center justify-between" onPress={() => router.push(`/observation/${obs.observationId}`)}>
+              <TouchableOpacity key={obs.observationId} className="p-4 flex-row items-center justify-between" onPress={() => router.push({ pathname: '/observation/details', params: { observationId: obs.observationId } })}>
                 <View className="flex-row items-center gap-4 flex-1">
                   <View className="w-10 h-10 bg-surface-container-low rounded-lg flex items-center justify-center">
                     <FontAwesome name="camera" size={16} color="#006763" />

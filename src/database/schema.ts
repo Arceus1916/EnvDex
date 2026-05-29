@@ -36,6 +36,7 @@ export class User extends Realm.Object<User> {
 
 export class SpeciesRecord extends Realm.Object<SpeciesRecord> {
   speciesId!: string;
+  userId!: string;
   commonName!: string;
   scientificName?: string;
   kingdom?: string;
@@ -60,6 +61,7 @@ export class SpeciesRecord extends Realm.Object<SpeciesRecord> {
     primaryKey: 'speciesId',
     properties: {
       speciesId: 'string',
+      userId: 'string',
       commonName: 'string',
       scientificName: 'string?',
       kingdom: 'string?',
@@ -84,8 +86,8 @@ export class SpeciesRecord extends Realm.Object<SpeciesRecord> {
 
 export class Observation extends Realm.Object<Observation> {
   observationId!: string;
-  speciesId?: string;
   userId!: string;
+  speciesId?: string;
   title?: string;
   animalNickname?: string;
   scientificName?: string;
@@ -111,8 +113,8 @@ export class Observation extends Realm.Object<Observation> {
     primaryKey: 'observationId',
     properties: {
       observationId: 'string',
-      speciesId: 'string?',
       userId: 'string',
+      speciesId: 'string?',
       title: 'string?',
       animalNickname: 'string?',
       scientificName: 'string?',

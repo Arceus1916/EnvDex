@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, FlatList, Image } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useRealm, useObject, useQuery } from '@realm/react';
 import { SpeciesRecord, Observation } from '../../database/schema';
+import { useAuthStore } from '../../stores/useAuthStore';
 
 export default function SpeciesDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -10,8 +11,10 @@ export default function SpeciesDetailScreen() {
   const realm = useRealm();
   
   const species = useObject(SpeciesRecord, id || '');
+  const userHashId = useAuthStore(state => state.userHashId);
+  
   const observations = useQuery(Observation)
-    .filtered('speciesId == $0 AND draftStatus == false', id)
+    .filtered('speciesId == $0 AND userId == $1 AND deletedStatus == false', id, userHashId || '')
     .sorted('timestamp', true);
 
   if (!species) {
@@ -32,9 +35,12 @@ export default function SpeciesDetailScreen() {
   };
 
   const renderObservation = ({ item }: { item: Observation }) => {
-    const firstMedia = item.media.length > 0 ? item.media[0].localUri : null;
+    const firstMedia = item.media && item.media.length > 0 ? item.media[0].localUri : null;
     return (
-      <View className="flex-row items-center bg-surface-container p-4 rounded-xl mb-3">
+      <TouchableOpacity 
+        className="flex-row items-center bg-surface-container-lowest rounded-2xl p-4 shadow-sm border border-outline-variant/10 mb-4"
+        onPress={() => router.push({ pathname: '/observation/details', params: { observationId: item.observationId } })}
+      >
         {firstMedia ? (
           <Image source={{ uri: firstMedia }} className="w-16 h-16 rounded-lg mr-4 bg-surface-variant" />
         ) : (
@@ -53,7 +59,7 @@ export default function SpeciesDetailScreen() {
             {item.timestamp.toLocaleDateString()}
           </Text>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };
 
@@ -67,13 +73,13 @@ export default function SpeciesDetailScreen() {
         <View className="flex-row justify-between items-start">
           <View className="flex-1">
             <Text className="text-4xl font-sans font-bold text-primary mb-1">
-              {species.commonName}
+              {species.scientificName || species.commonName}
             </Text>
-            {species.scientificName && (
+            {species.scientificName ? (
               <Text className="text-lg italic text-on-surface-variant">
-                {species.scientificName}
+                {species.commonName}
               </Text>
-            )}
+            ) : null}
             <Text className="text-sm font-bold text-on-surface mt-4 bg-primary-container self-start px-3 py-1 rounded-full overflow-hidden">
               {species.totalObservations} Observations
             </Text>
@@ -90,16 +96,11 @@ export default function SpeciesDetailScreen() {
 
       <FlatList
         className="flex-1 px-safe-margin pt-6"
-        data={observations as unknown as Observation[]}
+        data={observations as any}
         keyExtractor={(item) => item.observationId}
         renderItem={renderObservation}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 100 }}
-        ListEmptyComponent={
-          <Text className="text-on-surface-variant text-center mt-8">
-            No active observations found.
-          </Text>
-        }
       />
     </View>
   );

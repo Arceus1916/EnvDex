@@ -3,18 +3,20 @@ import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, Image, Keyb
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useRealm, useObject } from '@realm/react';
 import * as Location from 'expo-location';
+import * as ImagePicker from 'expo-image-picker';
 import { ObservationService } from '../../services/ObservationService';
-import { DraftObservation } from '../../database/schema';
+import { DraftObservation, Observation } from '../../database/schema';
 import { useAuthStore } from '../../stores/useAuthStore';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 export default function ObservationDetailsScreen() {
   const router = useRouter();
   const realm = useRealm();
-  const { draftId } = useLocalSearchParams<{ draftId: string }>();
+  const { draftId, observationId } = useLocalSearchParams<{ draftId?: string, observationId?: string }>();
   const userId = useAuthStore((state) => state.userHashId);
   
   const draft = useObject(DraftObservation, draftId || '');
+  const existingObs = useObject(Observation, observationId || '');
 
   const [animalNickname, setAnimalNickname] = useState('');
   const [scientificName, setScientificName] = useState('');
@@ -25,8 +27,19 @@ export default function ObservationDetailsScreen() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [customTagInput, setCustomTagInput] = useState('');
 
+  const [newMediaUris, setNewMediaUris] = useState<string[]>([]);
+  const [coverPicUri, setCoverPicUri] = useState<string | null>(null);
+
   useEffect(() => {
-    (async () => {
+    if (existingObs) {
+      setAnimalNickname(existingObs.animalNickname || '');
+      setScientificName(existingObs.scientificName || '');
+      setNotes(existingObs.notes || '');
+      setLocationText(existingObs.locationText || '');
+      setCoords({ lat: existingObs.latitude || 0, lon: existingObs.longitude || 0 });
+      setSelectedTags(existingObs.observationTags ? Array.from(existingObs.observationTags) : []);
+    } else {
+      (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         setLocationText('Location permission denied.');
@@ -51,43 +64,75 @@ export default function ObservationDetailsScreen() {
         setLocationText('Location unavailable.');
       }
     })();
-  }, []);
+    }
+  }, [existingObs]);
 
   const handleSave = async () => {
-    if (!userId || !draftId) return;
+    if (!userId) return;
 
     try {
-      await ObservationService.saveObservation(realm, draftId, userId, {
-        animalNickname: animalNickname.trim(),
-        scientificName: scientificName.trim(),
-        notes,
-        locationText,
-        latitude: coords?.lat,
-        longitude: coords?.lon,
-        observationTags: selectedTags,
-      });
+      if (existingObs) {
+        await ObservationService.updateObservation(realm, existingObs.observationId, {
+          animalNickname: animalNickname.trim(),
+          scientificName: scientificName.trim(),
+          notes,
+          locationText,
+          observationTags: selectedTags,
+        }, newMediaUris);
+        Alert.alert('Updated!', 'Observation changes saved.', [
+          { text: 'OK', onPress: () => router.back() }
+        ]);
+      } else if (draftId && draft) {
+        await ObservationService.saveObservation(realm, draftId, userId, {
+          animalNickname: animalNickname.trim(),
+          scientificName: scientificName.trim(),
+          notes,
+          locationText,
+          latitude: coords?.lat,
+          longitude: coords?.lon,
+          observationTags: selectedTags,
+        });
 
-      Alert.alert('Saved!', 'Observation added to your archive.', [
-        { text: 'OK', onPress: () => router.replace('/(tabs)') }
-      ]);
+        Alert.alert('Saved!', 'Observation added to your archive.', [
+          { text: 'OK', onPress: () => router.replace('/(tabs)') }
+        ]);
+      }
     } catch (err: any) {
       Alert.alert('Save Error', err.message);
     }
   };
 
-  const handleDiscard = () => {
-    if (draft) {
-      realm.write(() => {
-        realm.delete(draft);
-      });
+  const handleAddMedia = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images', 'videos'],
+      allowsMultipleSelection: true,
+      selectionLimit: 8,
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets.length > 0) {
+      const uris = result.assets.map((asset: any) => asset.uri);
+      setNewMediaUris([...newMediaUris, ...uris]);
     }
-    router.replace('/(tabs)');
   };
 
-  if (!draft) {
+  const handleDiscard = () => {
+    if (existingObs) {
+      router.back();
+    } else {
+      if (draft) {
+        realm.write(() => {
+          realm.delete(draft);
+        });
+      }
+      router.replace('/(tabs)');
+    }
+  };
+
+  if (!draft && !existingObs) {
     return (
       <View className="flex-1 bg-background items-center justify-center p-safe-margin">
-        <Text className="text-on-surface">Draft not found.</Text>
+        <Text className="text-on-surface">Record not found.</Text>
         <TouchableOpacity className="mt-4 p-4" onPress={() => router.replace('/(tabs)')}>
           <Text className="text-primary font-bold">Go Home</Text>
         </TouchableOpacity>
@@ -95,8 +140,18 @@ export default function ObservationDetailsScreen() {
     );
   }
 
-  const mediaCount = draft.tempMediaUris ? draft.tempMediaUris.length : 0;
-  const firstMedia = mediaCount > 0 ? draft.tempMediaUris![0] : 'https://images.unsplash.com/photo-1590209706318-7b98a58f4eb8';
+  let mediaCount = 0;
+  const allMediaUris: string[] = [];
+
+  if (existingObs) {
+    allMediaUris.push(...existingObs.media.map(m => m.localUri));
+  } else if (draft && draft.tempMediaUris) {
+    allMediaUris.push(...draft.tempMediaUris);
+  }
+  allMediaUris.push(...newMediaUris);
+  
+  mediaCount = allMediaUris.length;
+  const firstMedia = coverPicUri || (allMediaUris.length > 0 ? allMediaUris[0] : 'https://images.unsplash.com/photo-1590209706318-7b98a58f4eb8');
 
   return (
     <KeyboardAvoidingView 
@@ -120,18 +175,37 @@ export default function ObservationDetailsScreen() {
       <ScrollView 
         className="flex-1 pt-[100px] px-margin-mobile" 
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingBottom: 140 }}
+        contentContainerStyle={{ paddingBottom: 300 }}
       >
         {/* Media Carousel Section */}
-        <View className="relative w-full aspect-[4/3] rounded-[24px] bg-surface-container-highest overflow-hidden mb-6 border border-outline-variant/10 shadow-sm">
+        <View className="relative w-full aspect-[4/3] rounded-[24px] bg-surface-container-highest overflow-hidden mb-4 border border-outline-variant/10 shadow-sm">
           <Image source={{ uri: firstMedia }} className="w-full h-full object-cover" />
           <View className="absolute bottom-4 right-4 bg-inverse-surface/60 rounded-full px-3 py-1 flex-row items-center shadow-sm">
             <FontAwesome name="picture-o" size={12} color="#fff" />
-            <Text className="text-white font-sans text-[12px] font-semibold ml-2">1 / {mediaCount || 1}</Text>
+            <Text className="text-white font-sans text-[12px] font-semibold ml-2">Cover Photo</Text>
           </View>
-          <TouchableOpacity className="absolute bottom-4 left-4 w-10 h-10 rounded-full bg-surface/90 items-center justify-center shadow-sm">
-            <FontAwesome name="camera" size={16} color="#006763" />
-          </TouchableOpacity>
+        </View>
+
+        {/* Horizontal Media List */}
+        <View className="mb-6">
+          <Text className="font-sans text-[12px] font-semibold text-secondary uppercase tracking-wider mb-2 ml-2">Media Gallery ({mediaCount})</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} className="pl-2">
+            {allMediaUris.map((uri, index) => (
+              <TouchableOpacity 
+                key={index} 
+                onPress={() => setCoverPicUri(uri)}
+                className={`mr-3 w-20 h-20 rounded-[16px] overflow-hidden border-[3px] shadow-sm ${firstMedia === uri ? 'border-primary' : 'border-transparent'}`}
+              >
+                <Image source={{ uri }} className="w-full h-full object-cover" />
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity 
+              onPress={handleAddMedia}
+              className="mr-6 w-20 h-20 rounded-[16px] bg-surface-container border-[1.5px] border-dashed border-outline-variant flex items-center justify-center active:bg-surface-variant"
+            >
+              <FontAwesome name="plus" size={24} color="#6d7a78" />
+            </TouchableOpacity>
+          </ScrollView>
         </View>
 
         {/* Identification Form */}
@@ -150,7 +224,7 @@ export default function ObservationDetailsScreen() {
           </View>
 
           <View className="flex-col gap-2 mt-2">
-            <Text className="font-sans text-[12px] font-semibold text-on-surface-variant">Scientific Name</Text>
+            <Text className="font-sans text-[12px] font-semibold text-on-surface-variant">Species Name</Text>
             <TextInput
               className="w-full bg-surface-container-lowest border-[1.5px] border-outline-variant rounded-xl px-4 py-3 font-sans text-[16px] text-on-surface italic"
               placeholder="e.g. Morpho peleides"

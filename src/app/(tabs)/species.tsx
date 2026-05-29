@@ -4,14 +4,17 @@ import { useQuery } from '@realm/react';
 import { SpeciesRecord } from '../../database/schema';
 import { useRouter } from 'expo-router';
 
+import { useAuthStore } from '../../stores/useAuthStore';
+
 export default function SpeciesExplorerScreen() {
   const router = useRouter();
-  const species = useQuery(SpeciesRecord).sorted('updatedAt', true);
+  const userId = useAuthStore((state) => state.userHashId);
+  const species = useQuery(SpeciesRecord).filtered('userId == $0', userId || '').sorted('updatedAt', true);
   const [filter, setFilter] = useState<'all' | 'favorites'>('all');
 
   const filteredSpecies = filter === 'favorites' 
-    ? species.filtered('isFavorite == true') 
-    : species;
+    ? species.filtered('isFavorite == true AND totalObservations > 0') 
+    : species.filtered('totalObservations > 0');
 
   const renderItem = ({ item }: { item: SpeciesRecord }) => (
     <TouchableOpacity 
@@ -28,11 +31,11 @@ export default function SpeciesExplorerScreen() {
       
       <View className="flex-1">
         <Text className="text-xl font-sans font-bold text-on-surface">
-          {item.commonName}
+          {item.scientificName || item.commonName || 'Unknown Species'}
         </Text>
-        {item.scientificName && (
+        {item.scientificName && item.commonName && (
           <Text className="text-sm italic text-on-surface-variant mt-1">
-            {item.scientificName}
+            {item.commonName}
           </Text>
         )}
         <View className="flex-row items-center mt-2">

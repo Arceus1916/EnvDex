@@ -39,14 +39,14 @@ export default function HomeScreen() {
 
   const renderObservation = ({ item }: { item: Observation }) => {
     const firstMedia = item.media.length > 0 ? item.media[0].localUri : null;
-    const displayTitle = item.title || item.animalNickname || 'Unknown Sighting';
-    const displaySubtitle = item.scientificName || 'Unknown Species';
+    const displayTitle = item.title || item.animalNickname || item.scientificName || 'Unknown Sighting';
+    const displaySubtitle = item.scientificName ? item.scientificName : '';
 
     return (
       <TouchableOpacity 
         activeOpacity={0.9}
         className="bg-surface-container-lowest border border-outline-variant/30 rounded-3xl p-sm pb-lg shadow-sm flex flex-col mb-4 overflow-hidden"
-        onPress={() => router.push(`/species/${item.speciesId}`)}
+        onPress={() => router.push({ pathname: '/observation/details', params: { observationId: item.observationId } })}
       >
         <View className="relative w-full h-[220px] rounded-2xl overflow-hidden bg-surface-variant">
           {firstMedia ? (

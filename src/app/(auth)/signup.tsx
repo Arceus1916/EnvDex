@@ -56,7 +56,7 @@ export default function SignupScreen() {
         <View className="w-10 h-10" />
       </View>
 
-      <ScrollView className="flex-1 px-margin-mobile pt-md" showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+      <ScrollView className="flex-1 px-margin-mobile pt-md" showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: 100 }}>
         <View className="mb-xl text-center md:text-left">
           <Text className="text-[40px] font-bold text-primary mb-sm font-sans">
             Create Profile

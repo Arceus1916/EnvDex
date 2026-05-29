@@ -3,13 +3,15 @@ import { View, Text, TouchableOpacity, FlatList, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useRealm, useQuery } from '@realm/react';
 import { Observation, SpeciesRecord } from '../../database/schema';
+import { useAuthStore } from '../../stores/useAuthStore';
 
 export default function RecycleBinScreen() {
   const router = useRouter();
   const realm = useRealm();
+  const userId = useAuthStore((state) => state.userHashId);
   
   const deletedObservations = useQuery(Observation)
-    .filtered('deletedStatus == true')
+    .filtered('deletedStatus == true AND userId == $0', userId || '')
     .sorted('recycleBinTimestamp', true);
 
   const handleRestore = (obs: Observation) => {

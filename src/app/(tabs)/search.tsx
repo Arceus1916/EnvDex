@@ -17,39 +17,44 @@ export default function SpeciesExplorerScreen() {
   const { userHashId } = useAuthStore();
   
   const currentUser = useQuery(User).filtered('hashId == $0', userHashId)[0];
+  
+  // Directly sandbox species by userId in the Realm query
+  const allUserSpecies = useQuery(SpeciesRecord).filtered('userId == $0', userHashId || '');
   const userObservations = useQuery(Observation).filtered('userId == $0 AND deletedStatus == false', userHashId || '');
-  const userSpeciesIds = Array.from(new Set(userObservations.map(o => o.speciesId))).filter(Boolean);
+  
+  // Collect all speciesIds from user's active observations to hide cards if all obs are deleted/recycled
+  const userSpeciesIds = new Set<string>();
+  userObservations.forEach(obs => {
+    if (obs.speciesId) userSpeciesIds.add(obs.speciesId);
+  });
 
-  const allSpecies = useQuery(SpeciesRecord);
-  const species = allSpecies.filter(s => userSpeciesIds.includes(s.speciesId));
+  const species = allUserSpecies.filter(s => userSpeciesIds.has(s.speciesId));
 
-  const safeQuery = query.trim();
+  const safeQuery = query.trim().toLowerCase();
 
   const filteredSpecies = safeQuery.length > 0
     ? species.filter(s => 
-        s.commonName?.toLowerCase().includes(safeQuery.toLowerCase()) || 
-        s.scientificName?.toLowerCase().includes(safeQuery.toLowerCase())
+        s.commonName?.toLowerCase().includes(safeQuery) || 
+        s.scientificName?.toLowerCase().includes(safeQuery)
       )
     : species;
 
   const renderItem = ({ item }: { item: any }) => {
-    // For now, mapping both species and observation as "Card"
-    const title = item.commonName || item.title || item.animalNickname || 'Unknown';
-    const subtitle = item.scientificName || item.locationText || 'Unknown Location';
-    const category = item.categoryId || 'General';
-    // Dummy image for species since we might not have local ones stored easily, fallback to observation media if it's an observation
-    const imageUri = item.media && item.media.length > 0 ? item.media[0].localUri : 'https://images.unsplash.com/photo-1590209706318-7b98a58f4eb8';
+    const title = item.scientificName || item.commonName || 'Unknown';
+    const subtitle = item.scientificName ? (item.commonName || '') : '';
+    const category = 'General';
+    const imageUri = 'https://images.unsplash.com/photo-1590209706318-7b98a58f4eb8';
 
     if (viewMode === 'list') {
       return (
         <TouchableOpacity 
           className="bg-surface-container-lowest border border-outline-variant/30 rounded-[24px] p-4 mb-4 flex-row shadow-sm"
-          onPress={() => router.push(`/species/${item.speciesId || item.observationId}`)}
+          onPress={() => router.push(`/species/${item.speciesId}`)}
         >
           <Image source={{ uri: imageUri }} className="w-20 h-20 rounded-xl bg-surface-variant object-cover mr-4" />
           <View className="flex-1 justify-center">
-            <Text className="text-[12px] font-semibold text-secondary uppercase tracking-wider font-sans mb-1">{subtitle}</Text>
-            <Text className="text-[18px] font-bold text-on-surface font-sans">{title}</Text>
+            <Text className="text-[12px] font-semibold text-secondary uppercase tracking-wider font-sans mb-2">{subtitle}</Text>
+          <Text className="text-[20px] font-bold text-on-surface font-sans mb-1">{title}</Text>
           </View>
         </TouchableOpacity>
       );
@@ -58,14 +63,14 @@ export default function SpeciesExplorerScreen() {
     return (
       <TouchableOpacity 
         className="flex-1 bg-surface-container-lowest rounded-3xl p-4 shadow-sm border border-outline-variant/10 m-2 overflow-hidden"
-        onPress={() => router.push(`/species/${item.speciesId || item.observationId}`)}
+        onPress={() => router.push(`/species/${item.speciesId}`)}
       >
         <View className="w-full h-40 rounded-xl overflow-hidden mb-4 bg-surface-container relative">
           <Image source={{ uri: imageUri }} className="w-full h-full object-cover" />
           <View className="absolute inset-0 bg-white/10" />
           <View className="absolute top-2 right-2 bg-surface/90 rounded-full px-2 py-1 flex-row items-center shadow-sm">
             <FontAwesome name="eye" size={10} color="#006763" />
-            <Text className="font-sans text-[10px] font-semibold text-on-surface ml-1">12</Text>
+            <Text className="font-sans text-[10px] font-semibold text-on-surface ml-1">{item.totalObservations}</Text>
           </View>
         </View>
         <View className="flex-col">
